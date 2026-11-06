@@ -6,175 +6,255 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Central de Segurança IoT – Dashboard</title>
 <style>
-:root{--bg:#f4f5f7;--card:#fff;--tx:#1b1f24;--mut:#6b7280;--bd:#e2e5ea;--ok:#16a34a;--red:#dc2626;--blue:#2563eb;--term:#0f172a;--termtx:#86efac;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1116;--card:#171b22;--tx:#e6e8eb;--mut:#9aa3af;--bd:#2a3039;--term:#07090d;color-scheme:dark}}
-:root[data-theme="dark"]{--bg:#0e1116;--card:#171b22;--tx:#e6e8eb;--mut:#9aa3af;--bd:#2a3039;--term:#07090d;color-scheme:dark}
+:root{--bg:#eef1f6;--card:#fff;--tx:#161b22;--mut:#667085;--bd:#e3e7ee;--ok:#16a34a;--okbg:#dcfce7;--red:#dc2626;--redbg:#fee2e2;--amb:#f59e0b;--blue:#2563eb;--term:#0b1220;--termtx:#7ee2a8;--tgbg:#e7f1fb;--sh:0 1px 3px rgba(16,24,40,.08);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1117;--card:#161b22;--tx:#e6e8eb;--mut:#9aa3af;--bd:#2a313b;--okbg:#10301d;--redbg:#3a1616;--term:#06090f;--tgbg:#1d3248;--sh:none;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0d1117;--card:#161b22;--tx:#e6e8eb;--mut:#9aa3af;--bd:#2a313b;--okbg:#10301d;--redbg:#3a1616;--term:#06090f;--tgbg:#1d3248;--sh:none;color-scheme:dark}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.4}
-main{max-width:1000px;margin:0 auto;padding:16px}
-h1{font-size:1.3rem;margin:0}.sub{color:var(--mut);font-size:.85rem;margin:2px 0 14px}
-.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
-.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px}
-.card h2{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:0 0 10px}
-.status{font-size:1.6rem;font-weight:700}
-.armado{color:var(--red)}.desarmado{color:var(--ok)}
-.leds{display:flex;gap:18px;margin-top:12px;flex-wrap:wrap}
-.dev{display:flex;align-items:center;gap:8px;font-size:.85rem}
-.led{width:18px;height:18px;border-radius:50%;background:var(--bd);border:1px solid var(--bd)}
-.led.g.on{background:#22c55e;box-shadow:0 0 10px #22c55e}.led.r.on{background:#ef4444;box-shadow:0 0 10px #ef4444}
-.led.b.on{background:#f59e0b;box-shadow:0 0 10px #f59e0b}
-button{font:inherit;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;color:#fff;background:var(--blue);width:100%;margin-top:8px}
-button.alt{background:var(--red)}button.sec{background:#475569}
-.num{font-size:1.8rem;font-weight:700}.lbl{font-size:.78rem;color:var(--mut)}
-.row{display:flex;gap:10px}.row>div{flex:1}
-.bar{height:8px;border-radius:4px;background:var(--bd);overflow:hidden;margin-top:6px}
-.bar i{display:block;height:100%;width:0;background:var(--blue);transition:width .2s}
-.tg{background:#e8f3ff;color:#10253d;border-radius:10px;padding:10px;font-size:.85rem;white-space:pre-line;min-height:90px}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tg{background:#1d3248;color:#e6eef8}}
-.term{background:var(--term);color:var(--termtx);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.78rem;border-radius:8px;padding:10px;height:230px;overflow:auto;white-space:pre-wrap}
-.wide{grid-column:1/-1}
-.tbl{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.82rem}
-th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--bd)}th{color:var(--mut);font-weight:600}
-.lnk{display:inline-block;background:var(--blue);color:#fff;text-decoration:none;border-radius:8px;padding:9px 14px;font-size:.9rem;margin:0 0 14px}
-.note{font-size:.75rem;color:var(--mut);margin-top:14px}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.45}
+main{max-width:1100px;margin:0 auto;padding:20px 16px 32px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}
+h1{font-size:1.35rem;margin:0}
+.sub{color:var(--mut);font-size:.85rem;margin:2px 0 0}
+.pill{padding:8px 18px;border-radius:999px;font-weight:700;font-size:.95rem;letter-spacing:.04em;background:var(--okbg);color:var(--ok)}
+.pill.arm{background:var(--redbg);color:var(--red)}
+.pill.alert{background:var(--red);color:#fff;animation:pulse .6s infinite alternate}
+@keyframes pulse{to{opacity:.65}}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(12,1fr)}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px;box-shadow:var(--sh)}
+.card h2{font-size:.72rem;text-transform:uppercase;letter-spacing:.08em;color:var(--mut);margin:0 0 12px}
+.c4{grid-column:span 4}.c5{grid-column:span 5}.c6{grid-column:span 6}.c7{grid-column:span 7}.c8{grid-column:span 8}.c12{grid-column:span 12}
+@media (max-width:820px){.c4,.c5,.c6,.c7,.c8{grid-column:span 12}}
+.btns{display:grid;gap:8px}
+button{font:inherit;font-weight:600;border:0;border-radius:10px;padding:12px;cursor:pointer;color:#fff;background:var(--blue)}
+button.red{background:var(--red)}button.gray{background:#64748b}
+button:active{transform:scale(.98)}
+.tiles{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.tile{border:1px solid var(--bd);border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px}
+.dot{width:20px;height:20px;border-radius:50%;background:var(--bd);flex:none}
+.dot.g.on{background:#22c55e;box-shadow:0 0 12px #22c55e}
+.dot.r.on{background:#ef4444;box-shadow:0 0 12px #ef4444}
+.dot.a.on{background:var(--amb);box-shadow:0 0 12px var(--amb)}
+.dot.b.on{background:var(--blue);box-shadow:0 0 12px var(--blue)}
+.tl{font-size:.72rem;color:var(--mut)}.tv{font-weight:600;font-size:.9rem}
+.flow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.step{flex:1;min-width:120px;text-align:center;border:1px solid var(--bd);border-radius:12px;padding:12px 6px;font-size:.82rem;color:var(--mut);transition:.2s}
+.step b{display:block;font-size:1.3rem}
+.step.on{background:var(--redbg);border-color:var(--red);color:var(--red);transform:translateY(-2px)}
+.arrow{color:var(--mut)}
+@media (max-width:620px){.arrow{display:none}}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.kpi{text-align:center;border:1px solid var(--bd);border-radius:12px;padding:12px 4px}
+.num{font-size:2rem;font-weight:800;line-height:1.1}
+.ring{--p:0;width:96px;height:96px;border-radius:50%;margin:14px auto 6px;display:grid;place-items:center;background:conic-gradient(var(--blue) calc(var(--p)*1%),var(--bd) 0)}
+.ring span{width:76px;height:76px;border-radius:50%;background:var(--card);display:grid;place-items:center;font-weight:700;font-size:1.05rem}
+.chat{background:var(--tgbg);border-radius:12px;padding:10px;min-height:190px;display:flex;flex-direction:column;gap:8px;justify-content:flex-end}
+.msg{background:var(--card);color:var(--tx);border-radius:12px 12px 12px 3px;padding:8px 10px;font-size:.82rem;white-space:pre-line;max-width:92%}
+.msg small{display:block;text-align:right;color:var(--mut);font-size:.68rem}
+.empty{color:var(--mut);font-size:.82rem;text-align:center;margin:auto}
+.term{background:var(--term);color:var(--termtx);font:.76rem/1.45 ui-monospace,Menlo,Consolas,monospace;border-radius:10px;padding:10px;height:240px;overflow:auto;white-space:pre-wrap}
+.tlw{max-height:240px;overflow:auto}
+.ev{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--bd);font-size:.84rem}
+.ev i{font-style:normal;color:var(--mut);min-width:64px;font-variant-numeric:tabular-nums}
+.ev.al b{color:var(--red)}.ev.ok b{color:var(--ok)}
+.note{font-size:.76rem;color:var(--mut);margin-top:16px;text-align:center}
 </style>
 </head>
 <body>
 <main>
-<h1>🛡️ Central de Segurança IoT</h1>
-<p class="sub">Dashboard de simulação · Sala de Equipamentos · ESP32 + PIR + Telegram</p>
-
-<a class="lnk" href="https://wokwi.com/projects/479908685677434881" target="_blank" rel="noopener">▶ Abrir projeto no Wokwi</a>
+<header>
+  <div>
+    <h1>🛡️ Central de Segurança IoT</h1>
+    <p class="sub">Sala de Equipamentos · ESP32 + sensor PIR + Telegram · simulação da lógica do sistema</p>
+  </div>
+  <div id="pill" class="pill">DESARMADO</div>
+</header>
 
 <div class="grid">
-  <section class="card">
-    <h2>Estado do sistema</h2>
-    <div id="st" class="status desarmado">DESARMADO</div>
-    <div id="alerta" class="lbl">Sem alerta</div>
-    <div class="leds">
-      <div class="dev"><span id="lg" class="led g"></span>LED verde</div>
-      <div class="dev"><span id="lr" class="led r"></span>LED vermelho</div>
-      <div class="dev"><span id="lb" class="led b"></span>Buzzer</div>
-    </div>
-    <div class="leds"><div class="dev">PIR: <b id="pir">SEM MOVIMENTO</b></div></div>
-  </section>
-
-  <section class="card">
+  <section class="card c4">
     <h2>Controles</h2>
-    <button id="btnArm">Botão: Armar / Desarmar</button>
-    <button id="btnPir" class="alt">Simular movimento no PIR</button>
-    <button id="btnClr" class="sec">Limpar registros</button>
-  </section>
-
-  <section class="card">
-    <h2>Estatísticas</h2>
-    <div class="row">
-      <div><div id="nOc" class="num">0</div><div class="lbl">Ocorrências</div></div>
-      <div><div id="nEnv" class="num">0</div><div class="lbl">Mensagens enviadas</div></div>
-      <div><div id="nSup" class="num">0</div><div class="lbl">Suprimidas</div></div>
+    <div class="btns">
+      <button id="btnArm">🔘 Botão: armar / desarmar</button>
+      <button id="btnPir" class="red">🚶 Simular movimento (PIR)</button>
+      <button id="btnClr" class="gray">🧹 Limpar registros</button>
     </div>
-    <div class="lbl" style="margin-top:12px">Controle de notificações (intervalo de 10 s)</div>
-    <div class="bar"><i id="cd"></i></div>
-    <div id="cdTx" class="lbl">Pronto para notificar</div>
   </section>
 
-  <section class="card">
-    <h2>Última mensagem no Telegram</h2>
-    <div id="tg" class="tg">Nenhuma mensagem enviada ainda.</div>
+  <section class="card c8">
+    <h2>Indicadores</h2>
+    <div class="tiles">
+      <div class="tile"><span id="dg" class="dot g"></span><div><div class="tl">LED verde</div><div id="tg1" class="tv">Apagado</div></div></div>
+      <div class="tile"><span id="dr" class="dot r"></span><div><div class="tl">LED vermelho</div><div id="tr1" class="tv">Apagado</div></div></div>
+      <div class="tile"><span id="db" class="dot a"></span><div><div class="tl">Buzzer</div><div id="tb1" class="tv">Desligado</div></div></div>
+      <div class="tile"><span id="dp" class="dot b"></span><div><div class="tl">Sensor PIR</div><div id="tp1" class="tv">Sem movimento</div></div></div>
+    </div>
   </section>
 
-  <section class="card wide">
+  <section class="card c12">
+    <h2>Fluxo do sistema</h2>
+    <div class="flow">
+      <div id="s1" class="step"><b>👁️</b>Detectar<br>PIR</div><span class="arrow">➜</span>
+      <div id="s2" class="step"><b>🧠</b>Processar<br>ESP32</div><span class="arrow">➜</span>
+      <div id="s3" class="step"><b>🚨</b>Alerta local<br>LED + buzzer</div><span class="arrow">➜</span>
+      <div id="s4" class="step"><b>✈️</b>Notificar<br>Telegram</div><span class="arrow">➜</span>
+      <div id="s5" class="step"><b>📝</b>Registrar<br>evento</div>
+    </div>
+  </section>
+
+  <section class="card c5">
+    <h2>Estatísticas</h2>
+    <div class="kpis">
+      <div class="kpi"><div id="nOc" class="num">0</div><div class="tl">Ocorrências</div></div>
+      <div class="kpi"><div id="nEnv" class="num">0</div><div class="tl">Mensagens enviadas</div></div>
+      <div class="kpi"><div id="nSup" class="num">0</div><div class="tl">Suprimidas</div></div>
+    </div>
+    <div id="ring" class="ring"><span id="ringTx">Livre</span></div>
+    <div id="ringLb" class="tl" style="text-align:center">Controle de notificações · intervalo de 10 s</div>
+  </section>
+
+  <section class="card c7">
+    <h2>Telegram · Central de Segurança IoT</h2>
+    <div id="chat" class="chat"><div class="empty">Nenhuma mensagem enviada ainda.</div></div>
+  </section>
+
+  <section class="card c6">
     <h2>Monitor Serial</h2>
     <div id="ser" class="term"></div>
   </section>
 
-  <section class="card wide">
+  <section class="card c6">
     <h2>Registro de eventos</h2>
-    <div class="tbl"><table><thead><tr><th>#</th><th>Horário</th><th>Evento</th></tr></thead><tbody id="ev"></tbody></table></div>
+    <div id="ev" class="tlw"></div>
   </section>
 </div>
-<p class="note">Esta página simula a lógica do código do ESP32 (armar, PIR, alarme e anti-spam de 10 s). Ela não lê dados do Wokwi em tempo real e não envia mensagens reais ao Telegram.</p>
+<p class="note">Esta página simula a lógica do código do ESP32 (armar, PIR, alarme e anti-spam). Ela não lê dados do Wokwi em tempo real nem envia mensagens reais ao Telegram.</p>
 </main>
 
 <script>
 var INTERVALO=10000, HOLD=10000;
-var armado=false, alarme=false, pir=false, lastMov=0, lastNot=0, jaNot=false;
-var oc=0, env=0, sup=0, supPend=0, seq=0;
-var $=function(i){return document.getElementById(i)};
-
+var S={armado:false,alarme:false,pir:false,lastMov:0,lastNot:0,jaNot:false,oc:0,env:0,sup:0,pend:0,seq:0};
+var msgs=[];
+function $(i){return document.getElementById(i)}
+function el(tag,cls,txt){var e=document.createElement(tag);if(cls){e.className=cls}if(txt!==undefined){e.textContent=txt}return e}
 function hora(){return new Date().toLocaleTimeString("pt-BR")}
+
 function ser(t){var s=$("ser");s.textContent+=t+"\n";s.scrollTop=s.scrollHeight}
-function evento(t){
-  seq++;var tr=document.createElement("tr");
-  [String(seq),hora(),t].forEach(function(v){var td=document.createElement("td");td.textContent=v;tr.appendChild(td)});
-  $("ev").insertBefore(tr,$("ev").firstChild);
+function evento(t,tipo){
+  S.seq++;
+  var row=el("div","ev "+(tipo||""));
+  row.appendChild(el("i","",hora()));
+  row.appendChild(el("b","","#"+S.seq+" "));
+  row.appendChild(el("span","",t));
+  var box=$("ev");box.insertBefore(row,box.firstChild);
 }
 function status(){
   ser("================================");
   ser("     CENTRAL DE SEGURANÇA IoT");
   ser("================================");
   ser("Wi-Fi: CONECTADO");ser("Telegram: CONECTADO");
-  ser("Sistema: "+(armado?"ARMADO":"DESARMADO"));
-  ser("PIR: "+(pir?"MOVIMENTO":"SEM MOVIMENTO"));
-  ser("LED: "+(armado?"VERMELHO":"VERDE"));
-  ser("Buzzer: "+(alarme?"LIGADO":"DESLIGADO"));
+  ser("Sistema: "+(S.armado?"ARMADO":"DESARMADO"));
+  ser("PIR: "+(S.pir?"MOVIMENTO":"SEM MOVIMENTO"));
+  ser("LED: "+(S.armado?"VERMELHO":"VERDE"));
+  ser("Buzzer: "+(S.alarme?"LIGADO":"DESLIGADO"));
   ser("--------------------------------");
 }
-function telegram(msg){
-  $("tg").textContent=msg;env++;lastNot=Date.now();jaNot=true;
-  ser("Telegram: MENSAGEM ENVIADA");
+function telegram(txt){
+  msgs.push({t:txt,h:hora()});
+  if(msgs.length>4){msgs.shift()}
+  var c=$("chat");c.textContent="";
+  msgs.forEach(function(m){
+    var b=el("div","msg",m.t);b.appendChild(el("small","",m.h));c.appendChild(b);
+  });
+  S.env++;ser("Telegram: MENSAGEM ENVIADA");
+}
+function pulse(list){
+  list.forEach(function(n,i){
+    setTimeout(function(){
+      var e=$("s"+n);e.classList.add("on");
+      setTimeout(function(){e.classList.remove("on")},900);
+    },i*350);
+  });
 }
 function alternar(){
-  armado=!armado;alarme=false;jaNot=false;
-  ser(armado?">>> SISTEMA ARMADO":">>> SISTEMA DESARMADO");
-  evento(armado?"Sistema ARMADO pelo botão":"Sistema DESARMADO pelo botão");
-  var m=armado?"🔒 SISTEMA ARMADO\nA central de segurança foi ativada.\nMonitoramento iniciado.":"🔓 SISTEMA DESARMADO\nA central de segurança foi desativada.";
-  $("tg").textContent=m+"\nHorário: "+hora();env++;ser("Telegram: MENSAGEM ENVIADA");
+  S.armado=!S.armado;S.alarme=false;S.jaNot=false;
+  ser(S.armado?">>> SISTEMA ARMADO":">>> SISTEMA DESARMADO");
+  evento(S.armado?"Sistema ARMADO pelo botão":"Sistema DESARMADO pelo botão",S.armado?"al":"ok");
+  telegram(S.armado?"🔒 SISTEMA ARMADO\nA central de segurança foi ativada.\nMonitoramento iniciado.":"🔓 SISTEMA DESARMADO\nA central de segurança foi desativada.");
   status();render();
 }
 function movimento(){
-  pir=true;$("pir").textContent="MOVIMENTO";
-  setTimeout(function(){pir=false;$("pir").textContent="SEM MOVIMENTO";render()},2000);
-  if(!armado){ser("PIR: movimento (sistema DESARMADO – ignorado)");evento("Movimento ignorado (desarmado)");render();return}
-  var agora=Date.now();lastMov=agora;
-  if(!alarme){
-    alarme=true;oc++;
+  S.pir=true;
+  setTimeout(function(){S.pir=false;render()},2000);
+  if(!S.armado){
+    ser("PIR: movimento (sistema DESARMADO – ignorado)");
+    evento("Movimento ignorado (sistema desarmado)");
+    pulse([1]);render();return;
+  }
+  var agora=Date.now();S.lastMov=agora;
+  if(!S.alarme){
+    S.alarme=true;S.oc++;
     ser("--------------------------------");ser("MOVIMENTO DETECTADO!");ser("--------------------------------");
     ser("Sistema: ARMADO");ser("LED vermelho: LIGADO");ser("Buzzer: LIGADO");
-    evento("INTRUSÃO #"+oc+" – movimento detectado pelo PIR");
+    evento("INTRUSÃO #"+S.oc+" detectada pelo PIR","al");
   }
-  if(!jaNot||agora-lastNot>=INTERVALO){
+  if(!S.jaNot||agora-S.lastNot>=INTERVALO){
     ser("Enviando notificação...");
-    var m="🚨 ALERTA DE INTRUSÃO 🚨\nSistema: CENTRAL DE SEGURANÇA\nLocal: Sala de Equipamentos\nMovimento detectado pelo sensor PIR.\nEstado: ARMADO\nAção: ALARME ATIVADO\nOcorrência nº: "+oc;
-    if(supPend>0)m+="\nDetecções agrupadas: "+supPend;
-    telegram(m+"\nHorário: "+hora());supPend=0;
+    var m="🚨 ALERTA DE INTRUSÃO 🚨\nSistema: CENTRAL DE SEGURANÇA\nLocal: Sala de Equipamentos\nMovimento detectado pelo sensor PIR.\nEstado: ARMADO\nAção: ALARME ATIVADO\nOcorrência nº: "+S.oc;
+    if(S.pend>0){m+="\nDetecções agrupadas: "+S.pend}
+    telegram(m);S.pend=0;S.lastNot=agora;S.jaNot=true;
     evento("Notificação enviada ao Telegram");
+    pulse([1,2,3,4,5]);
   }else{
-    sup++;supPend++;ser("Notificação suprimida (aguardando intervalo de 10s)");
+    S.sup++;S.pend++;
+    ser("Notificação suprimida (aguardando intervalo de 10s)");
     evento("Notificação suprimida (anti-spam)");
+    pulse([1,2,3,5]);
   }
   render();
+}
+function limpar(){
+  S.oc=0;S.env=0;S.sup=0;S.pend=0;S.seq=0;S.jaNot=false;S.alarme=false;msgs=[];
+  $("ev").textContent="";$("ser").textContent="";
+  $("chat").textContent="";$("chat").appendChild(el("div","empty","Nenhuma mensagem enviada ainda."));
+  status();render();
 }
 function render(){
-  var st=$("st");st.textContent=armado?"ARMADO":"DESARMADO";st.className="status "+(armado?"armado":"desarmado");
-  $("alerta").textContent=alarme?"🚨 ALERTA ATIVO":(armado?"Monitorando":"Sem alerta");
-  var blink=alarme&&(Math.floor(Date.now()/300)%2===0);
-  $("lg").className="led g"+(!armado?" on":"");
-  $("lr").className="led r"+(armado&&(!alarme||blink)?" on":"");
-  $("lb").className="led b"+(blink?" on":"");
-  $("nOc").textContent=oc;$("nEnv").textContent=env;$("nSup").textContent=sup;
-  var rest=Math.max(0,INTERVALO-(Date.now()-lastNot));
-  if(jaNot&&rest>0){$("cd").style.width=(rest/INTERVALO*100)+"%";$("cdTx").textContent="Próxima notificação liberada em "+Math.ceil(rest/1000)+" s"}
-  else{$("cd").style.width="0";$("cdTx").textContent="Pronto para notificar"}
+  var pill=$("pill");
+  if(S.alarme){pill.textContent="🚨 ALERTA DE INTRUSÃO";pill.className="pill alert"}
+  else if(S.armado){pill.textContent="ARMADO";pill.className="pill arm"}
+  else{pill.textContent="DESARMADO";pill.className="pill"}
+  var blink=S.alarme&&(Math.floor(Date.now()/300)%2===0);
+  var rOn=S.armado&&(!S.alarme||blink);
+  $("dg").className="dot g"+(!S.armado?" on":"");
+  $("dr").className="dot r"+(rOn?" on":"");
+  $("db").className="dot a"+(blink?" on":"");
+  $("dp").className="dot b"+(S.pir?" on":"");
+  $("tg1").textContent=!S.armado?"Aceso":"Apagado";
+  $("tr1").textContent=S.alarme?"Piscando":(S.armado?"Aceso":"Apagado");
+  $("tb1").textContent=S.alarme?"BEEP-BEEP-BEEP":"Desligado";
+  $("tp1").textContent=S.pir?"MOVIMENTO":"Sem movimento";
+  $("nOc").textContent=S.oc;$("nEnv").textContent=S.env;$("nSup").textContent=S.sup;
+  var rest=Math.max(0,INTERVALO-(Date.now()-S.lastNot));
+  if(S.jaNot&&rest>0){
+    $("ring").style.setProperty("--p",String(rest/INTERVALO*100));
+    $("ringTx").textContent=Math.ceil(rest/1000)+" s";
+    $("ringLb").textContent="Próxima notificação liberada em "+Math.ceil(rest/1000)+" s";
+  }else{
+    $("ring").style.setProperty("--p","0");
+    $("ringTx").textContent="Livre";
+    $("ringLb").textContent="Controle de notificações · intervalo de 10 s";
+  }
 }
 setInterval(function(){
-  if(alarme&&Date.now()-lastMov>HOLD){alarme=false;ser("Alarme encerrado (sem novos movimentos). Sistema segue ARMADO.");evento("Alarme encerrado");}
+  if(S.alarme&&Date.now()-S.lastMov>HOLD){
+    S.alarme=false;
+    ser("Alarme encerrado (sem novos movimentos). Sistema segue ARMADO.");
+    evento("Alarme encerrado – sistema segue armado");
+  }
   render();
 },200);
-$("btnArm").onclick=alternar;$("btnPir").onclick=movimento;
-$("btnClr").onclick=function(){$("ev").innerHTML="";$("ser").textContent="";seq=0;oc=0;env=0;sup=0;supPend=0;jaNot=false;alarme=false;$("tg").textContent="Nenhuma mensagem enviada ainda.";status();render()};
-status();evento("Sistema iniciado (DESARMADO)");render();
+$("btnArm").onclick=alternar;$("btnPir").onclick=movimento;$("btnClr").onclick=limpar;
+status();evento("Sistema iniciado (DESARMADO)","ok");render();
 </script>
 </body>
 </html>
