@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Central de Segurança IoT – Dashboard</title>
+<style>
+:root{--bg:#f4f5f7;--card:#fff;--tx:#1b1f24;--mut:#6b7280;--bd:#e2e5ea;--ok:#16a34a;--red:#dc2626;--blue:#2563eb;--term:#0f172a;--termtx:#86efac;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1116;--card:#171b22;--tx:#e6e8eb;--mut:#9aa3af;--bd:#2a3039;--term:#07090d;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0e1116;--card:#171b22;--tx:#e6e8eb;--mut:#9aa3af;--bd:#2a3039;--term:#07090d;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.4}
+main{max-width:1000px;margin:0 auto;padding:16px}
+h1{font-size:1.3rem;margin:0}.sub{color:var(--mut);font-size:.85rem;margin:2px 0 14px}
+.grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:14px}
+.card h2{font-size:.78rem;text-transform:uppercase;letter-spacing:.06em;color:var(--mut);margin:0 0 10px}
+.status{font-size:1.6rem;font-weight:700}
+.armado{color:var(--red)}.desarmado{color:var(--ok)}
+.leds{display:flex;gap:18px;margin-top:12px;flex-wrap:wrap}
+.dev{display:flex;align-items:center;gap:8px;font-size:.85rem}
+.led{width:18px;height:18px;border-radius:50%;background:var(--bd);border:1px solid var(--bd)}
+.led.g.on{background:#22c55e;box-shadow:0 0 10px #22c55e}.led.r.on{background:#ef4444;box-shadow:0 0 10px #ef4444}
+.led.b.on{background:#f59e0b;box-shadow:0 0 10px #f59e0b}
+button{font:inherit;border:0;border-radius:8px;padding:10px 14px;cursor:pointer;color:#fff;background:var(--blue);width:100%;margin-top:8px}
+button.alt{background:var(--red)}button.sec{background:#475569}
+.num{font-size:1.8rem;font-weight:700}.lbl{font-size:.78rem;color:var(--mut)}
+.row{display:flex;gap:10px}.row>div{flex:1}
+.bar{height:8px;border-radius:4px;background:var(--bd);overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;width:0;background:var(--blue);transition:width .2s}
+.tg{background:#e8f3ff;color:#10253d;border-radius:10px;padding:10px;font-size:.85rem;white-space:pre-line;min-height:90px}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .tg{background:#1d3248;color:#e6eef8}}
+.term{background:var(--term);color:var(--termtx);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.78rem;border-radius:8px;padding:10px;height:230px;overflow:auto;white-space:pre-wrap}
+.wide{grid-column:1/-1}
+.tbl{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:.82rem}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--bd)}th{color:var(--mut);font-weight:600}
+.note{font-size:.75rem;color:var(--mut);margin-top:14px}
+</style>
+</head>
+<body>
+<main>
+<h1>🛡️ Central de Segurança IoT</h1>
+<p class="sub">Dashboard de simulação · Sala de Equipamentos · ESP32 + PIR + Telegram</p>
+
+<div class="grid">
+  <section class="card">
+    <h2>Estado do sistema</h2>
+    <div id="st" class="status desarmado">DESARMADO</div>
+    <div id="alerta" class="lbl">Sem alerta</div>
+    <div class="leds">
+      <div class="dev"><span id="lg" class="led g"></span>LED verde</div>
+      <div class="dev"><span id="lr" class="led r"></span>LED vermelho</div>
+      <div class="dev"><span id="lb" class="led b"></span>Buzzer</div>
+    </div>
+    <div class="leds"><div class="dev">PIR: <b id="pir">SEM MOVIMENTO</b></div></div>
+  </section>
+
+  <section class="card">
+    <h2>Controles</h2>
+    <button id="btnArm">Botão: Armar / Desarmar</button>
+    <button id="btnPir" class="alt">Simular movimento no PIR</button>
+    <button id="btnClr" class="sec">Limpar registros</button>
+  </section>
+
+  <section class="card">
+    <h2>Estatísticas</h2>
+    <div class="row">
+      <div><div id="nOc" class="num">0</div><div class="lbl">Ocorrências</div></div>
+      <div><div id="nEnv" class="num">0</div><div class="lbl">Mensagens enviadas</div></div>
+      <div><div id="nSup" class="num">0</div><div class="lbl">Suprimidas</div></div>
+    </div>
+    <div class="lbl" style="margin-top:12px">Controle de notificações (intervalo de 10 s)</div>
+    <div class="bar"><i id="cd"></i></div>
+    <div id="cdTx" class="lbl">Pronto para notificar</div>
+  </section>
+
+  <section class="card">
+    <h2>Última mensagem no Telegram</h2>
+    <div id="tg" class="tg">Nenhuma mensagem enviada ainda.</div>
+  </section>
+
+  <section class="card wide">
+    <h2>Monitor Serial</h2>
+    <div id="ser" class="term"></div>
+  </section>
+
+  <section class="card wide">
+    <h2>Registro de eventos</h2>
+    <div class="tbl"><table><thead><tr><th>#</th><th>Horário</th><th>Evento</th></tr></thead><tbody id="ev"></tbody></table></div>
+  </section>
+</div>
+<p class="note">Esta página simula a lógica do código do ESP32 (armar, PIR, alarme e anti-spam de 10 s). Ela não lê dados do Wokwi em tempo real e não envia mensagens reais ao Telegram.</p>
+</main>
+
+<script>
+var INTERVALO=10000, HOLD=10000;
+var armado=false, alarme=false, pir=false, lastMov=0, lastNot=0, jaNot=false;
+var oc=0, env=0, sup=0, supPend=0, seq=0;
+var $=function(i){return document.getElementById(i)};
+
+function hora(){return new Date().toLocaleTimeString("pt-BR")}
+function ser(t){var s=$("ser");s.textContent+=t+"\n";s.scrollTop=s.scrollHeight}
+function evento(t){
+  seq++;var tr=document.createElement("tr");
+  tr.innerHTML="<td>"+seq+"</td><td>"+hora()+"</td><td></td>";
+  tr.children[2].textContent=t;$("ev").insertBefore(tr,$("ev").firstChild);
+}
+function status(){
+  ser("================================");
+  ser("     CENTRAL DE SEGURANÇA IoT");
+  ser("================================");
+  ser("Wi-Fi: CONECTADO");ser("Telegram: CONECTADO");
+  ser("Sistema: "+(armado?"ARMADO":"DESARMADO"));
+  ser("PIR: "+(pir?"MOVIMENTO":"SEM MOVIMENTO"));
+  ser("LED: "+(armado?"VERMELHO":"VERDE"));
+  ser("Buzzer: "+(alarme?"LIGADO":"DESLIGADO"));
+  ser("--------------------------------");
+}
+function telegram(msg){
+  $("tg").textContent=msg;env++;lastNot=Date.now();jaNot=true;
+  ser("Telegram: MENSAGEM ENVIADA");
+}
+function alternar(){
+  armado=!armado;alarme=false;jaNot=false;
+  ser(armado?">>> SISTEMA ARMADO":">>> SISTEMA DESARMADO");
+  evento(armado?"Sistema ARMADO pelo botão":"Sistema DESARMADO pelo botão");
+  var m=armado?"🔒 SISTEMA ARMADO\nA central de segurança foi ativada.\nMonitoramento iniciado.":"🔓 SISTEMA DESARMADO\nA central de segurança foi desativada.";
+  $("tg").textContent=m+"\nHorário: "+hora();env++;ser("Telegram: MENSAGEM ENVIADA");
+  status();render();
+}
+function movimento(){
+  pir=true;$("pir").textContent="MOVIMENTO";
+  setTimeout(function(){pir=false;$("pir").textContent="SEM MOVIMENTO";render()},2000);
+  if(!armado){ser("PIR: movimento (sistema DESARMADO – ignorado)");evento("Movimento ignorado (desarmado)");render();return}
+  var agora=Date.now();lastMov=agora;
+  if(!alarme){
+    alarme=true;oc++;
+    ser("--------------------------------");ser("MOVIMENTO DETECTADO!");ser("--------------------------------");
+    ser("Sistema: ARMADO");ser("LED vermelho: LIGADO");ser("Buzzer: LIGADO");
+    evento("INTRUSÃO #"+oc+" – movimento detectado pelo PIR");
+  }
+  if(!jaNot||agora-lastNot>=INTERVALO){
+    ser("Enviando notificação...");
+    var m="🚨 ALERTA DE INTRUSÃO 🚨\nSistema: CENTRAL DE SEGURANÇA\nLocal: Sala de Equipamentos\nMovimento detectado pelo sensor PIR.\nEstado: ARMADO\nAção: ALARME ATIVADO\nOcorrência nº: "+oc;
+    if(supPend>0)m+="\nDetecções agrupadas: "+supPend;
+    telegram(m+"\nHorário: "+hora());supPend=0;
+    evento("Notificação enviada ao Telegram");
+  }else{
+    sup++;supPend++;ser("Notificação suprimida (aguardando intervalo de 10s)");
+    evento("Notificação suprimida (anti-spam)");
+  }
+  render();
+}
+function render(){
+  var st=$("st");st.textContent=armado?"ARMADO":"DESARMADO";st.className="status "+(armado?"armado":"desarmado");
+  $("alerta").textContent=alarme?"🚨 ALERTA ATIVO":(armado?"Monitorando":"Sem alerta");
+  var blink=alarme&&(Date.now()%600<300);
+  $("lg").className="led g"+(!armado?" on":"");
+  $("lr").className="led r"+(armado&&(!alarme||blink)?" on":"");
+  $("lb").className="led b"+(blink?" on":"");
+  $("nOc").textContent=oc;$("nEnv").textContent=env;$("nSup").textContent=sup;
+  var rest=Math.max(0,INTERVALO-(Date.now()-lastNot));
+  if(jaNot&&rest>0){$("cd").style.width=(rest/INTERVALO*100)+"%";$("cdTx").textContent="Próxima notificação liberada em "+Math.ceil(rest/1000)+" s"}
+  else{$("cd").style.width="0";$("cdTx").textContent="Pronto para notificar"}
+}
+setInterval(function(){
+  if(alarme&&Date.now()-lastMov>HOLD){alarme=false;ser("Alarme encerrado (sem novos movimentos). Sistema segue ARMADO.");evento("Alarme encerrado");}
+  render();
+},200);
+$("btnArm").onclick=alternar;$("btnPir").onclick=movimento;
+$("btnClr").onclick=function(){$("ev").innerHTML="";$("ser").textContent="";seq=0;oc=0;env=0;sup=0;supPend=0;jaNot=false;alarme=false;$("tg").textContent="Nenhuma mensagem enviada ainda.";status();render()};
+status();evento("Sistema iniciado (DESARMADO)");render();
+</script>
+</body>
+</html>
